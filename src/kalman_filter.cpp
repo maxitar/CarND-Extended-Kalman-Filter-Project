@@ -1,5 +1,6 @@
 #include "kalman_filter.h"
 #include <iostream>
+#include <cmath>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -26,12 +27,7 @@ void KalmanFilter::Predict() {
   P_ = F_*P_*F_.transpose() + Q_;
 }
 
-void KalmanFilter::Update(const VectorXd &z) {
-  /**
-    * update the state by using Kalman Filter equations
-  */
-  VectorXd z_pred = H_*x_;
-  VectorXd y = z - z_pred;
+void KalmanFilter::UpdateState(const VectorXd &y) {
   MatrixXd PHt = P_*H_.transpose();
   MatrixXd S = H_*PHt + R_;
   MatrixXd K = PHt*S.inverse();
@@ -39,6 +35,15 @@ void KalmanFilter::Update(const VectorXd &z) {
   x_ = x_ + K*y;
   MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
   P_ = (I - K*H_)*P_;
+}
+
+void KalmanFilter::Update(const VectorXd &z) {
+  /**
+    * update the state by using Kalman Filter equations
+  */
+  VectorXd z_pred = H_*x_;
+  VectorXd y = z - z_pred;
+  UpdateState(y);
 }
 
 VectorXd toPolar(const VectorXd& x_state) {
@@ -60,13 +65,6 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   */
   auto z_pred = toPolar(x_);
   VectorXd y = z - z_pred;
-  while (y(1) > 3.14159265) y(1) -= 2. * 3.14159265;
-  while (y(1) < -3.14159265) y(1) += 2. * 3.14159265;
-  MatrixXd PHt = P_*H_.transpose();
-  MatrixXd S = H_*PHt + R_;
-  MatrixXd K = PHt*S.inverse();
-
-  x_ = x_ + K*y;
-  MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
-  P_ = (I - K*H_)*P_;
+  y(1) = fmod(y(1), 2. * 3.14159265);
+  UpdateState(y);
 }

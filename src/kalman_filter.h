@@ -53,6 +53,14 @@ public:
   void Predict();
 
   /**
+    * Finish the update of the state as the second part
+    * of the update is the same for both the standard and the 
+    * extended filters
+    * @param y The error in the prediction
+    */
+  void UpdateState(const Eigen::VectorXd &y);
+
+  /**
    * Updates the state by using standard Kalman Filter equations
    * @param z The measurement at k+1
    */
