@@ -20,27 +20,25 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
 
 void KalmanFilter::Predict() {
   /**
-  TODO:
     * predict the state
   */
-	x_ = F_*x_;
-	P_ = F_*P_*F_.transpose() + Q_;
+  x_ = F_*x_;
+  P_ = F_*P_*F_.transpose() + Q_;
 }
 
 void KalmanFilter::Update(const VectorXd &z) {
   /**
-  TODO:
     * update the state by using Kalman Filter equations
   */
-	VectorXd z_pred = H_*x_;
-	VectorXd y = z - z_pred;
-	MatrixXd PHt = P_*H_.transpose();
-	MatrixXd S = H_*PHt + R_;
-	MatrixXd K = PHt*S.inverse();
+  VectorXd z_pred = H_*x_;
+  VectorXd y = z - z_pred;
+  MatrixXd PHt = P_*H_.transpose();
+  MatrixXd S = H_*PHt + R_;
+  MatrixXd K = PHt*S.inverse();
 
-	x_ = x_ + K*y;
-	MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
-	P_ = (I - K*H_)*P_;
+  x_ = x_ + K*y;
+  MatrixXd I = MatrixXd::Identity(x_.size(), x_.size());
+  P_ = (I - K*H_)*P_;
 }
 
 VectorXd toPolar(const VectorXd& x_state) {
